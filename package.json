@@ -1,0 +1,29 @@
+{
+  "name": "chess_js",
+  "version": "1.0.0",
+  "description": "JavaScript based web app featuring a live chess game between two players or against an AI. A chat feature is available where you can talk to friends.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hackett123/chess_js.git"
+  },
+  "author": "Michael Hackett",
+  "license": "MIT",
+  "dependencies": {
+    "async": "*",
+    "bulma": "^0.8.0",
+    "crypto-js": "^3.1.9-1",
+    "dynamodb": "^1.2.1",
+    "ejs": "^2.7.4",
+    "express": "^3.21.2",
+    "express-session": "*",
+    "lru-cache": "*",
+    "nodemon": "^2.0.2",
+    "serve-favicon": "^2.5.0",
+    "socket.io": "^2.3.0",
+    "underscore": "^1.9.1"
+  }
+}

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <% include ../head_imports.html %>
+    <script type="text/javascript">
+        function checkUser() {
+            var username = $("#username").val();
+            var password = $("#password").val();
+            if (username == "" || password == "") {
+                alert("Please fill out all the fields.");
+            } else {
+                $.post("/checkLogin", {
+                    username: username,
+                    password: password
+                }, function (data, status) {
+                    console.log(data);
+                    console.log(status);
+                    if (status == "success" && data) {
+                        //go to home page.
+                        window.location.replace("/home");
+                    } else {
+                        //danger fields.
+                        markIncorrect();
+                    }
+                });
+            }
+        }
+
+        function markIncorrect() {
+            $('#username').addClass('is-danger');
+            $('#password').addClass('is-danger');
+            $('#password').val('');
+            $('#incorrect_warning').html("The entered username/password combination either is incorrect or does not exist.")
+        }
+
+    </script>
+</head>
+
+<body>
+    <% include ../header.html %>
+    <div class="container">
+        <div class="field">
+            <label class="label">Username</label>
+            <div class="control has-icons-left">
+                <input class="input" type="text" placeholder="Username" id="username">
+                <span class="icon is-small is-left">
+                    <i class="fas fa-user"></i>
+                </span>
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">Password</label>
+            <p class="control has-icons-left">
+                <input class="input" type="password" placeholder="Password" id="password">
+                <span class="icon is-small is-left">
+                    <i class="fas fa-lock"></i>
+                </span>
+            </p>
+        </div>
+        <p class="help is-danger" id="incorrect_warning"></p>
+        <div class="control">
+            <button class="button is-link" onclick="checkUser()">Log in</button>
+        </div>
+    </div>
+    </br>
+</body>
+
+</html>

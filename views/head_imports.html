@@ -1,0 +1,88 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>chess_js</title>
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"> -->
+<link rel="stylesheet" href="https://unpkg.com/bulmaswatch/darkly/bulmaswatch.min.css">
+<style>
+    div {
+        /* Provides some padding that bulma doesn't do */
+        padding-top: 5px;
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-bottom: 5px;
+    }
+    .main {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+    }
+
+    .section {
+        flex: 1;
+    }
+
+    .footer {
+        /* Keeps footer stuck to bottom */
+        position: absolute;
+        bottom: 0;
+        padding: 1rem;
+        width: 100%;
+    }
+</style>
+<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript">
+    function validateAndSetReactionaryColors(id, valid) {
+        if (!valid) {
+            $('#' + id).removeClass('is-success');
+            $('#' + id).addClass('is-danger');
+        } else {
+            $('#' + id).removeClass('is-danger');
+            $('#' + id).addClass('is-success');
+        }
+        return valid;
+    }
+
+
+function prettyTime(timecode) {
+    // console.log("hesre");
+    var parts = timecode.split("-");
+    console.log(parts)
+    if (parts.length < 2) return timecode
+    var year = parts[0];
+    var month = getMonth(parseInt(parts[1], 10));
+    var day = parseInt(parts[2].substring(0,2));
+    var timeParts = getTime(parts[2].substring(3,11));
+    var time = timeParts[0];
+    var dayChange = timeParts[1];
+    day += parseInt(dayChange, 10);
+    return time + " on " + month + " " + day + ", " + year;
+}
+
+function getMonth(i) {
+    var monthNames = [ "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December" ];
+    return monthNames[i - 1];
+}
+
+function getTime(time, day) {
+    var parts = time.split(":");
+    hr = parts[0] - 5; // -5 to account for time zone
+    var dayChange = 0;
+    if (hr < 0) {
+        dayChange -= 1;
+        hr = 24 + hr;
+    }
+    latin = " AM";
+    if (hr >= 12) {
+        latin = " PM"
+        hr = (hr != 12) ? hr % 12 : hr;
+    }
+    hr = (hr == 0) ? 12 : hr;
+    min = parts[1];
+    sec = parts[2];
+    var timeString = hr + ":" + min + ":" + sec + latin;
+    return [timeString, dayChange];
+}
+
+</script>

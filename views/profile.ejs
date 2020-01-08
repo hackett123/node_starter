@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <% include head_imports.html %>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+    </script>
+    <script type="text/javascript">
+        
+        var username;
+        var pageUsername;
+        var isFriend;
+        // var loadedPosts = {}; 
+        // var loadedFriends = {};
+
+        function hypername(name) {
+            var link = "\"\\profile\\" + name + "\"";
+            return "<a href="+link+ ">"+name+"</a>";
+        }
+
+        function prettyFriend(friend, status) {
+            var fullStatus = status ? "<font color=\"green\"> (Online)</font>" : 
+                "<font color=\"red\"> (Offline)</font>"
+            if (!friend || !status) {
+                return "";
+            } else {
+                return hypername(friend) + fullStatus;
+            }
+        }
+
+        function addFriend() {
+            console.log("addFriend called");
+            $.post('/createFriendship', {userA:username, userB:pageUsername}, function(data, status) {
+                pageLoad();
+            });
+        }
+
+        // this is hard coded and therefore bad, but it will work.
+        function message() {
+            window.location.replace("/messenger?usernames[]=" + pageUsername);
+        }
+
+        function getMonth(i) {
+            var monthNames = [ "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December" ];
+            return monthNames[i - 1];
+        }
+
+        function prettyBirthday(birthday) {
+            var parts = birthday.split("-");
+            console.log(parts);
+            var year = parts[0];
+            var month = getMonth(parseInt(parts[1], 10));
+            var day = parseInt(parts[2].substring(0,2));
+            return month + " " + day + ", " + year; 
+        }
+
+        function updateInfo() {
+            $.get('/getUserObject/'+ pageUsername, function(user) {
+                if (isFriend) {
+                    var info = "<div class=\"box\">";
+                    info += "<div class = \"card\"><div class =\" has-text-centered\">Info Yo!</div>";
+                    info += "Name: " + user.firstName + " " + user.lastName;
+                    info += "<br>Birthday: " + prettyBirthday(user.birthday);
+                    info += "<br>Currently " + (user.online ? "Online" : "Offline");
+                    info += "</div></div>";
+                    $('#profileInfo').html(info);
+                }
+            });
+        }
+
+        function pageLoad() {
+            $.getJSON('/getUser', function (user) {
+                username = user.username;
+                if (!pageUsername || pageUsername === "" || pageUsername === username) {
+                    // if my profile page
+                    pageUsername = username; 
+                    isFriend = true;
+                    $('#username').html("Hello " + username + ", this is your account page");
+                    // $('#friends').prepend("Here are all your friends...<br>");
+                    loadFriends();
+                    updateInfo();
+                } else {
+                    // determine if friends with page's user
+                    $.get('/areFriends/' + pageUsername, function(result) {
+                        isFriend = result;
+                        var friendStatus = "<br>You two are " + (isFriend ? "" : "NOT") + " friends";
+                        if (!isFriend) {
+                            // if not friends, display add friend button
+                            friendStatus += "<div class=\"control\"> <button class=\"button is-link\" onclick=\"addFriend()\">Add Friend</button> </div>";
+                        } else {
+                            // if friends, display message button
+                            friendStatus += "<div class=\"control\"> <button class=\"button is-link\" onclick=\"message()\">Message</button> </div>";
+                        }
+                        $('#username').html("Hello " + username + ", this is the account page for " + pageUsername + "!" + friendStatus);
+                        updateInfo();
+                    });  
+                }
+            });
+        }
+        function intervalFunction() {
+            loadFriends();
+            updateInfo();
+        }
+
+        setInterval(intervalFunction, 5000); // timer
+
+        $(document).ready(function () {
+            pageUsername = '<%= pageUsername %>';
+            pageLoad();
+        })
+        
+        
+    </script>
+</head>
+
+<body class="main">
+    <% include header.html %>
+    <div class="section">
+        <div class="container">
+            <div class="columns is-multiline">
+                <div class="column is-one-quarter">
+                    <div class="box">
+                        <div class="card" id="username">
+                            Account page for...
+                        </div>
+                        <div class = "card" id = "friends">
+                            <ul id="friendList"></ul>
+                        </div>
+                    </div>
+                    <div id="profileInfo"></div>
+                    <div id="friendRecs"></div>
+                </div>
+                <div class="column">
+                    <div class="box" id="newPost">
+                        <div class="field">
+                            <label class="label">Tell us What's Up</label>
+                            <div class="control">
+                              <textarea class="textarea" placeholder="type a post here :)" id ="newPostText"></textarea>
+                            </div>
+                          </div>
+                        <div class="control">
+                            <button class="button is-link" onclick="sendPost()">Post</button>
+                        </div>
+                    </div>
+                    <ul id="newPostFeed"></ul>
+                    <div class="box" id = "postFeed">
+                        <div class="card">
+                            No more posts...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <% include head_imports.html %>
+    <script type="text/javascript">
+
+        // var loadedPosts = {};    
+        // var loadedFriends = {};
+        // var loadedNotifications = {};
+        var username;
+        // var markAsReadButtonShown = false;
+
+        function clearFields() {
+            $("#friendToAdd").val("");
+        }
+        function greetUser() {
+            $.getJSON('/getUser', function (user) {
+                $('#welcomeHeader').html("Welcome to your home page, " + user.username + "!");
+                username = user.username;
+                updateFeed();
+            });
+        }
+
+        function getMatchingPrefixUsers() {
+            prefix = $('#prefix').val()
+            var prefix = $("#prefix").val();
+            if (prefix.length > 0) {
+                $.post("/findUsersWithPrefix", {
+                    prefix: prefix
+                }, function (users, status) {
+                    // sets search bar to red if there are no users matching this prefix.
+                    validateAndSetReactionaryColors("prefix", users.length > 0);
+                    clearDropdown();
+                    renderDropdown(users);
+                })
+            }
+        }
+
+        function renderDropdown(users) {
+            $.each(users, function (val, username) {
+                $("#dropdown-content").append($('<a href= "/profile/' + username + '">' + username + '</a></br>'))
+            });
+        }
+
+        function clearDropdown() {
+            $("#dropdown-content").empty();
+        }
+
+        function hypername(name) {
+            var link = "\"\\profile\\" + name + "\"";
+            return "<a href="+link+ ">"+name+"</a>";
+        }
+
+        // function like(info) {
+        //     $.post('/likePost/'+info+"/"+username,function(_) {
+
+        //     });
+        // }
+        // // displays online status with correct color
+        // function statusFormat(friend, status) {
+        //     var fullStatus; 
+        //     if (status == 1) {
+        //         fullStatus = "<font color=\"green\"> (Online)</font>";
+        //     } else {
+        //         fullStatus = "<font color=\"red\"> (Offline)</font>";
+        //     }
+        //     return hypername(friend) + fullStatus;
+        // }
+
+        // function prettyFriend(friend, status) {
+        //     if (!friend || status == null) {
+        //         return "";
+        //     }
+        //     var before = "<span id = \"friend" + friend + "\">";
+        //     var out = before + statusFormat(friend, status) + "</span>";
+        //     return out;
+        // }
+
+        // function loadFriends() {
+        //     $.get('/getFriendsOnlineStatus', function(list) {
+        //         for (var i in list) {
+        //             var friend = list[i][0];
+        //             var status = list[i][1] ? 1: -1;
+        //             if (!loadedFriends[friend]) {
+        //                 // if friend not loaded...
+        //                 loadedFriends[friend] = status; 
+        //                 // add to lit
+        //                 $('#friendList').append($('<li>').html(prettyFriend(friend, status)));
+        //             } else {
+        //                 // else check if status change
+        //                 if (status != loadedFriends[friend]) {
+        //                     // update status
+        //                     $("#friend"+friend).html(statusFormat(friend, status));
+        //                     loadedFriends[friend] = status;
+        //                 }
+        //             }
+        //         }
+        //     });
+        // }
+
+        // function prettyNotification(notification) {
+        //     return notification.content;
+        // }
+
+        // function updateNotifications() {
+        //     $.get('/getNotifications/' + username, function(notifications) {   
+        //         for (var i in notifications) {
+        //             var notification = notifications[i];
+        //             var notificationID = notification.notificationID;
+        //             if (!loadedNotifications[notificationID]) {
+        //                 loadedNotifications[notificationID] = 1;
+        //                 $('#notificationList').append($('<li>').html(prettyNotification(notification)));
+        //             }
+        //         }
+
+        //         if (!markAsReadButtonShown && notifications.length > 0) {
+        //             addMarkAsReadButton();
+        //         }
+
+        //         if (notifications.length == 0) {
+        //             removeMarkAsReadButton();
+        //         }
+
+        //     })
+        // }
+
+        // function removeNotifications() {
+        //     $.post("/removeNotifications", {"username":username,"notifications": Object.keys(loadedNotifications)}, function(_) {
+        //         // clear notifications list
+        //         $('#notificationList').html("");
+        //     })
+        // }
+
+        // function addMarkAsReadButton() {
+            
+        //     var button = "<button class=\"button is-small is-link\" onclick = \"removeNotifications()\">Mark All As Read</button>";
+        //     $('#markAsReadButton').html(button);
+        //     markAsReadButtonShown = true;
+        // }
+
+        // function removeMarkAsReadButton() {
+        //     $('#markAsReadButton').html("");
+        //     markAsReadButtonShown = false;
+        // }
+
+        $(document).ready(function () {
+            greetUser();
+            clearFields();
+            //loadFriends();
+            //updateNotifications();
+        });
+
+        function intervalFunction() {
+            //updateFeed();
+            //loadFriends();
+            //updateNotifications();
+        }
+
+        setInterval(intervalFunction, 10000); // timer
+
+    </script>
+</head>
+
+<body>
+    <% include header.html %>
+    <div class="container">
+        <section class="section">
+            <h1 class="title" id="welcomeHeader">Welcome to your home page,</h1>
+        </section>
+
+        <div class="card">
+            <label class="label">Search for a user!</label>
+            <input class="input" type="text" id="prefix" onkeyup="getMatchingPrefixUsers()">
+            <div class="dropdown is-hoverable">
+                <div class="dropdown-trigger">
+                    <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                        <span>See users with this prefix</span>
+                        <span class="icon is-small">
+                            <i class="fas fa-angle-down" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                </div>
+                <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                    <div class="dropdown-content" id="dropdown-content">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="columns is-multiline">
+
+            <section class="column is-one-quarter">
+                <div class = "card" id = "friends">
+                    <br>
+                    <h2 class="subtitle has-text-centered">Who is out at seas?</h2>
+                    <ul id="friendList"></ul>
+                </div>
+            </section>
+
+            <section class="column is-one-fifth">
+                <section class = "box">
+                    <h2 class="title">Notifications</h1>
+                        <span id = "markAsReadButton" ></span>
+                        <ul id = "notificationList" style="list-style-type:none;">
+                        </ul>
+                </section>
+            </section>
+
+        </div>
+
+    </div>
+</body>
+
+</html>

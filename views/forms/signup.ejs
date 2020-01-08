@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <% include ../head_imports.html %>
+    <script type="text/javascript">
+        function validInput(firstName, lastName, username, password, email, birthday, interests, affiliations) {
+            var firstValid = validateAndSetReactionaryColors("firstName", firstName != "")
+            var lastValid = validateAndSetReactionaryColors("lastName", lastName != "")
+            var usernameValid = validateAndSetReactionaryColors("username", username != "" && username.length >= 3 && username.length <= 25 && !username.includes("|") && !username.includes(" ") && username != "messenger")
+            var passwordValid = validateAndSetReactionaryColors("password", password != "" && password.length >= 5)
+            var emailValid = validateAndSetReactionaryColors("email", email != "" && email.includes("@"));
+            var birthdayValid = validateAndSetReactionaryColors("birthday", birthday != "");
+            return firstValid && lastValid && usernameValid && passwordValid && emailValid && birthdayValid;
+        }
+
+        function checkUsernameAvailability() {
+            var username = $("#username").val();
+            if (username.length < 3 || username.length > 25) {
+                validateAndSetReactionaryColors("username", false);
+                return;
+            }
+            $.post("/checkUsername", {
+                username: username
+            }, function (available, status) {
+                if (available) {
+                    //username available - calls function defined in script written in head_imports!
+                    if (validateAndSetReactionaryColors("username", !username.includes("|") && !username.includes(" ")))
+                        $("#username_available").html("");
+                } else {
+                    validateAndSetReactionaryColors("username", false);
+                    $("#username_available").html("Username is taken");
+                }
+            });
+        }
+
+        function signupUser() {
+            var firstName = $("#firstName").val()
+            var lastName = $("#lastName").val()
+            var username = $("#username").val();
+            var password = $("#password").val();
+            var email = $("#email").val();
+            var birthday = $("#birthday").val();
+            var affiliations = $("#affiliations").val()
+            var interests = $("#interests").val()
+            
+
+            if (validInput(firstName, lastName, username, password, email, birthday)) {
+                $.post("/createUser", {
+                    username: username,
+                    firstName: firstName,
+                    lastName: lastName,
+                    password: password,
+                    birthday: birthday,
+                    email: email
+                }, function (data, status) {
+                    console.log("in callback after creating user");
+                    console.log("data: " + data);
+                    console.log("status: " + status);
+                    if (status == "success" && data) {
+                        // $.get("/home"); -> doesn't work bc we won't actually change webpages
+                        window.location.replace("/home");
+                    } else {
+                        alert("There was an error.")
+                    }
+                })
+            }
+
+        }
+
+        function clearFields() {
+            $("#firstName").val("");
+            $("#lastName").val("");
+            $("#username").val("");
+            $("#password").val("");
+            $("#email").val("");
+        }
+
+        $(document).ready(function () {
+            clearFields();
+        })
+
+    </script>
+</head>
+
+<body class="main">
+    <% include ../header.html %>
+    <div class="section">
+        <div class="container">
+            <div class="field">
+                <label class="label">First Name</label>
+                <div class="control">
+                    <input class="input" type="text" id="firstName">
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Last Name</label>
+                <div class="control">
+                    <input class="input" type="text" id="lastName">
+                </div>
+            </div>
+    
+            <div class="field">
+                <label class="label">Username (3-25 characters, cannot include spaces or | symbol)</label>
+                <div class="control has-icons-left">
+                    <input class="input" type="text" id="username" onkeyup="checkUsernameAvailability()">
+                    <span class="icon is-small is-left">
+                        <i class="fas fa-user"></i>
+                    </span>
+                </div>
+                <p class="help is-danger" id="username_available"></p>
+            </div>
+    
+            <div class="field">
+                <label class="label">Email</label>
+                <div class="control has-icons-left">
+                    <input class="input" type="email" id="email">
+                    <span class="icon is-small is-left">
+                        <i class="fas fa-envelope"></i>
+                    </span>
+                </div>
+                <p class="help is-danger" id="email_invalid"></p>
+            </div>
+    
+            <div class="field">
+                <label class="label">Birthday</label>
+                <div class="control">
+                    <input class="input" type="text" id="birthday">
+                </div>
+                <p class="help is-danger" id="email_invalid"></p>
+            </div>
+
+            <div class="field">
+                <label class="label">Password (at least 5 characters)</label>
+                <p class="control has-icons-left">
+                    <input class="input" type="password" placeholder="Password" id="password">
+                    <span class="icon is-small is-left">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                </p>
+            </div>
+            <div class="control">
+                <button class="button is-link" onclick="signupUser()">Submit</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
