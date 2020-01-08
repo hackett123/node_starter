@@ -6,10 +6,10 @@
     <script type="text/javascript">
 
         // var loadedPosts = {};    
-        // var loadedFriends = {};
-        // var loadedNotifications = {};
+        var loadedFriends = {};
+        var loadedNotifications = {};
         var username;
-        // var markAsReadButtonShown = false;
+        var markAsReadButtonShown = false;
 
         function clearFields() {
             $("#friendToAdd").val("");
@@ -52,112 +52,107 @@
             return "<a href="+link+ ">"+name+"</a>";
         }
 
-        // function like(info) {
-        //     $.post('/likePost/'+info+"/"+username,function(_) {
-
-        //     });
-        // }
         // // displays online status with correct color
-        // function statusFormat(friend, status) {
-        //     var fullStatus; 
-        //     if (status == 1) {
-        //         fullStatus = "<font color=\"green\"> (Online)</font>";
-        //     } else {
-        //         fullStatus = "<font color=\"red\"> (Offline)</font>";
-        //     }
-        //     return hypername(friend) + fullStatus;
-        // }
+        function statusFormat(friend, status) {
+            var fullStatus; 
+            if (status == 1) {
+                fullStatus = "<font color=\"green\"> (Online)</font>";
+            } else {
+                fullStatus = "<font color=\"red\"> (Offline)</font>";
+            }
+            return hypername(friend) + fullStatus;
+        }
 
-        // function prettyFriend(friend, status) {
-        //     if (!friend || status == null) {
-        //         return "";
-        //     }
-        //     var before = "<span id = \"friend" + friend + "\">";
-        //     var out = before + statusFormat(friend, status) + "</span>";
-        //     return out;
-        // }
+        function prettyFriend(friend, status) {
+            if (!friend || status == null) {
+                return "";
+            }
+            var before = "<span id = \"friend" + friend + "\">";
+            var out = before + statusFormat(friend, status) + "</span>";
+            return out;
+        }
 
-        // function loadFriends() {
-        //     $.get('/getFriendsOnlineStatus', function(list) {
-        //         for (var i in list) {
-        //             var friend = list[i][0];
-        //             var status = list[i][1] ? 1: -1;
-        //             if (!loadedFriends[friend]) {
-        //                 // if friend not loaded...
-        //                 loadedFriends[friend] = status; 
-        //                 // add to lit
-        //                 $('#friendList').append($('<li>').html(prettyFriend(friend, status)));
-        //             } else {
-        //                 // else check if status change
-        //                 if (status != loadedFriends[friend]) {
-        //                     // update status
-        //                     $("#friend"+friend).html(statusFormat(friend, status));
-        //                     loadedFriends[friend] = status;
-        //                 }
-        //             }
-        //         }
-        //     });
-        // }
+        function loadFriends() {
+            $.get('/getFriendsOnlineStatus', function(list) {
+                for (var i in list) {
+                    var friend = list[i][0];
+                    var status = list[i][1] ? 1: -1;
+                    if (!loadedFriends[friend]) {
+                        // if friend not loaded...
+                        loadedFriends[friend] = status; 
+                        // add to lit
+                        $('#friendList').append($('<li>').html(prettyFriend(friend, status)));
+                    } else {
+                        // else check if status change
+                        if (status != loadedFriends[friend]) {
+                            // update status
+                            $("#friend"+friend).html(statusFormat(friend, status));
+                            loadedFriends[friend] = status;
+                        }
+                    }
+                }
+            });
+        }
 
-        // function prettyNotification(notification) {
-        //     return notification.content;
-        // }
+        function prettyNotification(notification) {
+            return notification.content;
+        }
 
-        // function updateNotifications() {
-        //     $.get('/getNotifications/' + username, function(notifications) {   
-        //         for (var i in notifications) {
-        //             var notification = notifications[i];
-        //             var notificationID = notification.notificationID;
-        //             if (!loadedNotifications[notificationID]) {
-        //                 loadedNotifications[notificationID] = 1;
-        //                 $('#notificationList').append($('<li>').html(prettyNotification(notification)));
-        //             }
-        //         }
+        function updateNotifications() {
+            $.get('/getNotifications/' + username, function(notifications) {   
+                for (var i in notifications) {
+                    var notification = notifications[i];
+                    var notificationID = notification.notificationID;
+                    if (!loadedNotifications[notificationID]) {
+                        loadedNotifications[notificationID] = 1;
+                        $('#notificationList').append($('<li>').html(prettyNotification(notification)));
+                    }
+                }
 
-        //         if (!markAsReadButtonShown && notifications.length > 0) {
-        //             addMarkAsReadButton();
-        //         }
+                if (!markAsReadButtonShown && notifications.length > 0) {
+                    addMarkAsReadButton();
+                }
 
-        //         if (notifications.length == 0) {
-        //             removeMarkAsReadButton();
-        //         }
+                if (notifications.length == 0) {
+                    removeMarkAsReadButton();
+                }
 
-        //     })
-        // }
+            })
+        }
 
-        // function removeNotifications() {
-        //     $.post("/removeNotifications", {"username":username,"notifications": Object.keys(loadedNotifications)}, function(_) {
-        //         // clear notifications list
-        //         $('#notificationList').html("");
-        //     })
-        // }
+        function removeNotifications() {
+            $.post("/removeNotifications", {"username":username,"notifications": Object.keys(loadedNotifications)}, function(_) {
+                // clear notifications list
+                $('#notificationList').html("");
+            })
+        }
 
-        // function addMarkAsReadButton() {
+        function addMarkAsReadButton() {
             
-        //     var button = "<button class=\"button is-small is-link\" onclick = \"removeNotifications()\">Mark All As Read</button>";
-        //     $('#markAsReadButton').html(button);
-        //     markAsReadButtonShown = true;
-        // }
+            var button = "<button class=\"button is-small is-link\" onclick = \"removeNotifications()\">Mark All As Read</button>";
+            $('#markAsReadButton').html(button);
+            markAsReadButtonShown = true;
+        }
 
-        // function removeMarkAsReadButton() {
-        //     $('#markAsReadButton').html("");
-        //     markAsReadButtonShown = false;
-        // }
+        function removeMarkAsReadButton() {
+            $('#markAsReadButton').html("");
+            markAsReadButtonShown = false;
+        }
 
         $(document).ready(function () {
             greetUser();
             clearFields();
-            //loadFriends();
-            //updateNotifications();
+            loadFriends();
+            updateNotifications();
         });
 
         function intervalFunction() {
             //updateFeed();
-            //loadFriends();
-            //updateNotifications();
+            loadFriends();
+            updateNotifications();
         }
 
-        setInterval(intervalFunction, 10000); // timer
+        setInterval(intervalFunction, 5000); // timer
 
     </script>
 </head>
