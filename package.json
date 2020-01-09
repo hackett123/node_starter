@@ -1,14 +1,14 @@
 {
-  "name": "chess_js",
+  "name": "Node Starter",
   "version": "1.0.0",
-  "description": "JavaScript based web app featuring a live chess game between two players or against an AI. A chat feature is available where you can talk to friends.",
+  "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hackett123/chess_js.git"
+    "url": "https://github.com/hackett123/node_starter.git"
   },
   "author": "Michael Hackett",
   "license": "MIT",
